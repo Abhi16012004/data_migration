@@ -10,7 +10,7 @@ from sqlalchemy import insert,update,delete
 from sqlalchemy.orm import class_mapper
 from sqlalchemy.exc import SQLAlchemyError
 import json
-
+from generated_model import Base
 def serialize(model_instance):
     columns = [c.key for c in class_mapper(model_instance.__class__).columns]
     return {c: getattr(model_instance, c) for c in columns}
@@ -25,6 +25,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 engine = create_engine("sqlite:///new.db")
+Base.metadata.create_all(engine)
 session = Session(bind=engine)
 
 @app.post("/api/v1/form/contact")

@@ -1,12 +1,35 @@
-import sqlite3
-def validate_input(data):
-    required_keys = ['name', 'contact_number']
-    
-    # Check if all required keys are present
-    if not all(key in data for key in required_keys):
-        return False
-    
-    return True
+import base64
+from jwt.exceptions import ExpiredSignatureError
+import jwt
 
-data={'contact_number': '1234567890', 'name': 'John Doe', 'age': 30}
-print(validate_input(data))
+
+
+def decode_user(token: str):
+    header_data = jwt.get_unverified_header(token)
+    print(header_data)
+    try:
+        payload = jwt.decode(
+        token,
+        key='my_super_secret',
+        algorithms=[header_data['alg'], ]
+    )
+        return payload.get('name')
+    except ExpiredSignatureError as error:
+        print(f'Unable to decode the token, error: {error}')
+
+payload_data = {
+    "sub": "4242",
+    "name": "user1",
+    "nickname": "Jess"
+}
+
+my_secret = 'my_super_secret'
+
+token = jwt.encode(
+    payload=payload_data,
+    key=my_secret
+)
+
+print(token)
+username = decode_user(token)
+print(f"Extracted username: {username}")
